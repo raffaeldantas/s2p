@@ -1,0 +1,20 @@
+#!/bin/bash
+# versao 1.2   2013-01-25
+###USAGE: shp2pgsql [<options>] <shapefile> [[<schema>.]<table>]
+
+mkdir ~/tmp;
+find ~/ -type f -iname "*shp" -exec cp {} ~/tmp/ \;
+find ~/ -type f -iname "*shx" -exec cp {} ~/tmp/ \;
+find ~/ -type f -iname "*dbf" -exec cp {} ~/tmp/ \;
+find ~/ -type f -iname "*prj" -exec cp {} ~/tmp/ \;
+# entra no diretorio onde estao os dados, no caso /tmp/
+# as tabela tem o nome do shp sem a extensao 1>&2 redireciona stdout para stderr, para nao gravar mensagem, apenas mostrar na tela
+
+cd ~/tmp/
+for a in *shp; do
+   TABELA=`echo $a | sed s/\.shp//`
+   echo "processando tabela" $TABELA 1>&2
+   shp2pgsql -s 32722 $a $TABELA
+done  > ~/tmp/saida.sql
+psql -h localhost -p 5432 -d ourinhos -U i3geouser -f ~/Documentos/sql/saida.sql
+exit 0
